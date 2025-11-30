@@ -8,10 +8,11 @@ import { UserEntity } from './entities/user';
 import { CreateUserDto } from './dto/create-user.dto';
 import { randomUUID } from 'crypto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
+import { db } from 'src/DB/db';
 
 @Injectable()
 export class UserService {
-  private users: UserEntity[] = [];
+  private users: UserEntity[] = db.users;
 
   findAll() {
     return this.users.map((user) => {

@@ -2,9 +2,10 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { AlbumEntity } from './entities/album';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { randomUUID } from 'crypto';
+import { db } from 'src/DB/db';
 
 export class AlbumService {
-  private albums: AlbumEntity[] = [];
+  private albums: AlbumEntity[] = db.albums;
 
   findAll() {
     return this.albums;
@@ -29,7 +30,7 @@ export class AlbumService {
       id: randomUUID(),
       year: dto.year,
       name: dto.name,
-      artistId: null,
+      artistId: dto.artistId ?? null,
     };
 
     this.albums.push(newAlbum);
@@ -63,5 +64,21 @@ export class AlbumService {
     }
 
     this.albums.splice(index, 1);
+
+    db.tracks.forEach((track) => {
+      if (track.albumId === id) {
+        track.albumId = null;
+      }
+
+      return track;
+    });
+
+    const indexInFav = db.favorites.albums.findIndex(
+      (album) => album.id === id,
+    );
+
+    if (indexInFav > -1) {
+      db.favorites.albums.splice(indexInFav, 1);
+    }
   }
 }

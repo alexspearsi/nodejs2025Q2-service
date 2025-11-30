@@ -2,9 +2,10 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { TrackEntity } from './entities/track';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { randomUUID } from 'crypto';
+import { db } from 'src/DB/db';
 
 export class TrackService {
-  private tracks: TrackEntity[] = [];
+  private tracks: TrackEntity[] = db.tracks;
 
   findAll() {
     return this.tracks;
@@ -28,8 +29,8 @@ export class TrackService {
     const newTrack: TrackEntity = {
       id: randomUUID(),
       name: dto.name,
-      artistId: dto.artistId || null,
-      albumId: dto.albumId || null,
+      artistId: dto.artistId ?? null,
+      albumId: dto.albumId ?? null,
       duration: dto.duration,
     };
 
@@ -65,5 +66,13 @@ export class TrackService {
     }
 
     this.tracks.splice(index, 1);
+
+    const indexInFav = db.favorites.tracks.findIndex(
+      (track) => track.id === id,
+    );
+
+    if (indexInFav > -1) {
+      db.favorites.tracks.splice(indexInFav, 1);
+    }
   }
 }

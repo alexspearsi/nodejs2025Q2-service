@@ -2,9 +2,10 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { ArtistEntity } from './entities/artist';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { randomUUID } from 'crypto';
+import { db } from 'src/DB/db';
 
 export class ArtistService {
-  private artists: ArtistEntity[] = [];
+  private artists: ArtistEntity[] = db.artists;
 
   findAll(): ArtistEntity[] {
     return this.artists;
@@ -43,6 +44,28 @@ export class ArtistService {
     }
 
     this.artists.splice(index, 1);
+
+    db.tracks.forEach((track) => {
+      if (track.artistId === id) {
+        track.artistId = null;
+      }
+    });
+
+    db.albums.forEach((album) => {
+      if (album.artistId === id) {
+        album.artistId = null;
+      }
+
+      return album;
+    });
+
+    const indexInFav = db.favorites.artists.findIndex(
+      (artist) => artist.id === id,
+    );
+
+    if (indexInFav > -1) {
+      db.favorites.artists.splice(indexInFav, 1);
+    }
   }
 
   update(id: string, dto: CreateArtistDto): ArtistEntity {
