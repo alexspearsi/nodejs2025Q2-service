@@ -6,3 +6,4 @@ export interface UserEntity {
   createdAt: number;
   updatedAt: number;
 }
+ 
