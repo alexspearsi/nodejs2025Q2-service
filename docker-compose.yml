@@ -1,12 +1,7 @@
 version: '3.9'
 
-networks:
-  my-network:
-    external: true
-
 volumes:
   postgres_data:
-  postgres_logs:
 
 services:
   node:
@@ -24,8 +19,6 @@ services:
       - ./:/usr/app
       - /usr/app/node_modules
     restart: always
-    networks:
-      - my-network
     command: npm run start:dev
 
   postgres:
@@ -39,7 +32,4 @@ services:
       - "${POSTGRES_PORT}:${POSTGRES_PORT}"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - postgres_logs:/var/log/postgresql
     restart: always
-    networks:
-      - my-network
