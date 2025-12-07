@@ -12,9 +12,7 @@ export class AlbumService {
   constructor(private prisma: PrismaService) {}
 
   async findAll() {
-    console.log('Fetching all albums...');
     const albums = await this.prisma.album.findMany();
-    console.log(albums);
     return albums;
   }
 
