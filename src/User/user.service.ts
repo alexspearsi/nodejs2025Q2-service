@@ -4,13 +4,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-// import { UserEntity } from './entities/user';
 import { CreateUserDto } from './dto/create-user.dto';
 import { randomUUID } from 'crypto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
-// import { db } from 'src/DB/db';
 import { PrismaService } from 'src/Prisma/prisma.service';
-// import { UserEntity } from './entities/user';
 
 @Injectable()
 export class UserService {

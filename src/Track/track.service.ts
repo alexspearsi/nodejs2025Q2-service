@@ -1,18 +1,26 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { TrackEntity } from './entities/track';
 import { CreateTrackDto } from './dto/create-track.dto';
 import { randomUUID } from 'crypto';
-import { db } from 'src/DB/db';
+import { PrismaService } from 'src/Prisma/prisma.service';
 
+@Injectable()
 export class TrackService {
-  private tracks: TrackEntity[] = db.tracks;
+  constructor(private prisma: PrismaService) {}
 
-  findAll() {
-    return this.tracks;
+  async findAll() {
+    const tracks = await this.prisma.track.findMany();
+    return tracks;
   }
 
-  findOne(id: string): TrackEntity {
-    const track = this.tracks.find((track) => track.id === id);
+  async findOne(id: string) {
+    const track = await this.prisma.track.findUnique({
+      where: { id },
+    });
 
     if (!track) {
       throw new NotFoundException('Track not found');
@@ -21,7 +29,7 @@ export class TrackService {
     return track;
   }
 
-  create(dto: CreateTrackDto): TrackEntity {
+  async create(dto: CreateTrackDto) {
     if (typeof dto.name !== 'string' || typeof dto.duration !== 'number') {
       throw new BadRequestException('Invalid data');
     }
@@ -34,45 +42,59 @@ export class TrackService {
       duration: dto.duration,
     };
 
-    this.tracks.push(newTrack);
-
-    return newTrack;
+    return await this.prisma.track.create({
+      data: newTrack,
+    });
   }
 
-  update(id: string, dto: CreateTrackDto): TrackEntity {
+  async update(id: string, dto: CreateTrackDto) {
     if (typeof dto.name !== 'string' || typeof dto.duration !== 'number') {
       throw new BadRequestException('Invalid data');
     }
 
-    const track = this.tracks.find((track) => track.id === id);
+    const track = await this.prisma.track.findUnique({
+      where: { id },
+    });
 
     if (!track) {
       throw new NotFoundException('Track not found');
     }
 
-    track.duration = dto.duration;
-    track.name = dto.name;
-    track.albumId = dto.albumId || null;
-    track.artistId = dto.artistId || null;
-
-    return track;
+    return await this.prisma.track.update({
+      where: { id },
+      data: {
+        duration: dto.duration,
+        name: dto.name,
+        albumId: dto.albumId || null,
+        artistId: dto.artistId || null,
+      },
+    });
   }
 
-  remove(id: string) {
-    const index = this.tracks.findIndex((track) => track.id === id);
+  async remove(id: string) {
+    const track = await this.prisma.track.findUnique({
+      where: { id },
+    });
 
-    if (index < 0) {
+    if (!track) {
       throw new NotFoundException('Track not found');
     }
 
-    this.tracks.splice(index, 1);
+    await this.prisma.track.delete({
+      where: { id },
+    });
 
-    const indexInFav = db.favorites.tracks.findIndex(
-      (track) => track.id === id,
-    );
+    const allFavs = await this.prisma.favorites.findMany({
+      where: { tracks: { has: id } },
+    });
 
-    if (indexInFav > -1) {
-      db.favorites.tracks.splice(indexInFav, 1);
+    for (const fav of allFavs) {
+      await this.prisma.favorites.update({
+        where: { id: fav.id },
+        data: {
+          tracks: fav.tracks.filter((trackId) => trackId !== id),
+        },
+      });
     }
   }
 }
