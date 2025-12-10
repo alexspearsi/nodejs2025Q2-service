@@ -17,4 +17,4 @@ docker compose up -d postgres
 npx prisma migrate deploy
 
 # 7. Start the application
-npm start
+npm start 
