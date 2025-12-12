@@ -10,7 +10,6 @@ import {
   Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { UserEntity } from './entities/user';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 
@@ -19,7 +18,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  findAll(): Omit<UserEntity, 'password'>[] {
+  findAll() {
     return this.userService.findAll();
   }
 

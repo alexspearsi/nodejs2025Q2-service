@@ -14,6 +14,8 @@ lerna-debug.log*
 # OS
 .DS_Store
 
+.env
+
 # Tests
 /coverage
 /.nyc_output
@@ -33,3 +35,14 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+/generated/prisma
+
+
+
+cd nodejs2025Q2-service
+npm install
+cp .env.example .env
+npx prisma generate
+docker compose up -d postgres
+npx prisma migrate deploy
+npm start
