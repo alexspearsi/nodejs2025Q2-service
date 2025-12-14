@@ -1,2 +1,29 @@
-GET http://localhost:4000/favs
+POST http://localhost:4000/auth/login
 content-type: application/json
+
+{
+  "login": "222",
+  "password": "222"
+}
+
+###
+
+POST http://localhost:4000/auth/signup
+content-type: application/json
+
+{
+  "login": "222",
+  "password": "222"
+}
+
+
+###
+
+GET http://localhost:4000/user/
+content-type: application/json
+
+###
+
+GET http://localhost:4000/auth/me
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI1NzMzYjA1NS01ZGM1LTQzMWUtYjIwZS01M2JlYTZiMWZiM2MiLCJsb2dpbiI6IjIyMiIsImlhdCI6MTc2NjI2NDYxMywiZXhwIjoxNzY2MjY4MjEzfQ.t-Ak3Xk_tQ-shuXkaVPckh_sJXzY5XM3iPJEylbLEls

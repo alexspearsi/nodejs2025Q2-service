@@ -17,11 +17,9 @@ export class AuthService {
     process.env.TOKEN_REFRESH_EXPIRE_TIME ?? '24h';
 
   async signup(dto: SignUpDto) {
-    const hash = await bcrypt.hash(dto.password, 10);
-
     await this.userService.create({
       login: dto.login,
-      password: hash,
+      password: dto.password,
     });
 
     return { message: 'User created successfully' };
