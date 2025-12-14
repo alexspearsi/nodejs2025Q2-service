@@ -8,9 +8,12 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { randomUUID } from 'crypto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { PrismaService } from 'src/Prisma/prisma.service';
+import bcrypt from 'node_modules/bcryptjs/umd/types';
 
 @Injectable()
 export class UserService {
+  private salt = Number(process.env.CRYPT_SALT ?? 10);
+
   constructor(private prisma: PrismaService) {}
 
   private sanitizeUser(user) {
@@ -33,22 +36,43 @@ export class UserService {
       throw new BadRequestException('Invalid data');
     }
 
+    const user = await this.prisma.user.findUnique({
+      where: { login: dto.login },
+    });
+
+    if (user) {
+      return this.sanitizeUser(user);
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.password, this.salt);
     const now = Date.now();
 
-    const user = {
+    const newUser = {
       id: randomUUID(),
       login: dto.login,
-      password: dto.password,
+      password: hashedPassword,
       version: 1,
       createdAt: now,
       updatedAt: now,
     };
 
     await this.prisma.user.create({
-      data: user,
+      data: newUser,
     });
 
-    return this.sanitizeUser(user);
+    return this.sanitizeUser(newUser);
+  }
+
+  async findByLogin(login: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { login },
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not fond');
+    }
+
+    return user;
   }
 
   async findOne(id: string) {
@@ -104,5 +128,16 @@ export class UserService {
     });
 
     return this.sanitizeUser(updateUser);
+  }
+
+  async setRefreshToken(id: string, refreshToken: string | null) {
+    await this.prisma.user.update({
+      where: { id },
+      data: {
+        refreshToken,
+        version: { increment: 1 },
+        updatedAt: Date.now(),
+      },
+    });
   }
 }
