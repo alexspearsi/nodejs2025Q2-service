@@ -8,7 +8,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { randomUUID } from 'crypto';
 import { UpdatePasswordDto } from './dto/update-password.dto';
 import { PrismaService } from 'src/Prisma/prisma.service';
-import bcrypt from 'node_modules/bcryptjs/umd/types';
+import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class UserService {
