@@ -11,10 +11,10 @@ cp .env.example .env
 npx prisma generate
 
 # 5. Start PostgreSQL via Docker
-docker compose up -d postgres
+docker compose up postgres
 
 # 6. Apply database migrations
 npx prisma migrate deploy
 
 # 7. Start the application
-npm start
+npm start 

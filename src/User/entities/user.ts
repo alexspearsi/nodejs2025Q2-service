@@ -5,4 +5,5 @@ export interface UserEntity {
   version: number;
   createdAt: number;
   updatedAt: number;
+  refreshToken: string | null;
 }
